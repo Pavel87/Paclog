@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.pacmac.pacmaclogger.*;
+import com.pacmac.paclog.*;
 
 public class MainActivity extends AppCompatActivity implements PacLogListener{
 

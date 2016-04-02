@@ -1,4 +1,4 @@
-package com.pacmac.pacmaclogger;
+package com.pacmac.paclog;
 
 import org.junit.Test;
 

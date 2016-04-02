@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Logger.iml" filepath="$PROJECT_DIR$/Logger.iml" />
-      <module fileurl="file://$PROJECT_DIR$/pacmaclogger/pacmaclogger.iml" filepath="$PROJECT_DIR$/pacmaclogger/pacmaclogger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pac-log/pac-log.iml" filepath="$PROJECT_DIR$/pac-log/pac-log.iml" />
     </modules>
   </component>
 </project>

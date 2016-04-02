@@ -1,4 +1,4 @@
-package com.pacmac.pacmaclogger;
+package com.pacmac.paclog;
 
 /**
  * Created by pacmac on 31/03/16.

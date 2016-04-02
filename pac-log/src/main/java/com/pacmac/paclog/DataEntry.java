@@ -1,4 +1,4 @@
-package com.pacmac.pacmaclogger;
+package com.pacmac.paclog;
 
 import java.util.Calendar;
 
