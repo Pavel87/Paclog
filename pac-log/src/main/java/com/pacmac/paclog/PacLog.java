@@ -211,10 +211,6 @@ public class PacLog {
     }
 
 
-    public void deleteLog() {
-
-    }
-
     public String getFileName() {
         return fileName;
     }
