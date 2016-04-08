@@ -1,1 +1,1 @@
-include ':pac-log'
+include ':pac-log', ':helperpaclog'

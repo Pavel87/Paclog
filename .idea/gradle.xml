@@ -10,6 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/helperpaclog" />
             <option value="$PROJECT_DIR$/pac-log" />
           </set>
         </option>

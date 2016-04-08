@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">PacLog</string>
+    <string name="version">0.9.4</string>
 </resources>

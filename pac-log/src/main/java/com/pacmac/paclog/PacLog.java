@@ -20,30 +20,49 @@ import java.io.OutputStream;
 
 public class PacLog {
 
-    private static long LOG_SIZE = 256 * 1024; //256kB
-    private static String TAG = "PAClog";
-    private String fileName = "log.txt";
+
+    //filename properties
+    private final long LOG_SIZE = 256 * 1024; //256kB
     private long fileSize = 0;
+    private String fileName = "";
+    private String fileExtension = "txt";
+    private final String BCKUP_EXT = "bak";
+
+    public final int INTERNAL_STORAGE = 0;
+    public final int SECONDARY_STORAGE = 1;   // default
+    public final int CUSTOM_STORAGE = 2;
+
+    private int storageOption = SECONDARY_STORAGE;
+    private String absoluthPath = "/sdcard/";
+    private File logFile = null;
+
+
+    private final String TAG = "PAClog";
     private Context context = null;
     private String lastMessage = null;
-
     private boolean isListener = false;
     private boolean isExported = false;
-
     private PacLogListener pacLogListener = null;
+
+
+    // private constructors
+    private PacLog(Context context) {
+        this.context = context;
+        this.fileName = context.getApplicationInfo().loadLabel(context.getPackageManager()).toString();
+        if (this.fileName.length() == 0)
+            this.fileName = TAG;
+        logFile = setLogPath(storageOption, fileExtension);
+        initListener();
+    }
 
     private PacLog(Context context, long fileSize, String fileName) {
         this.context = context;
-        this.fileName = fileName != null ? fileName : this.fileName;
+        this.fileName = fileName;
         this.fileSize = fileSize < 100 ? LOG_SIZE : fileSize;
+        logFile = setLogPath(storageOption, fileExtension);
         initListener();
     }
 
-
-    private PacLog(Context context) {
-        this.context = context;
-        initListener();
-    }
 
     private void initListener() {
         if (this.context instanceof PacLogListener) {
@@ -54,6 +73,17 @@ public class PacLog {
         }
     }
 
+    private File setLogPath(int storageOption, String extension) {
+        if (storageOption == SECONDARY_STORAGE)
+            return new File(context.getExternalFilesDir(null), fileName + "." + extension);
+        else if (storageOption == INTERNAL_STORAGE)
+            return new File(context.getFilesDir(), fileName + "." + extension);
+        else
+            return new File(absoluthPath, fileName + "." + extension);
+    }
+
+
+    //  Object builder
     public static PacLog setUP(Context context, long fileSize, String fileName) {
         PacLog pacLog = new PacLog(context, fileSize, fileName);
         return pacLog;
@@ -72,12 +102,6 @@ public class PacLog {
     }
 
 
-    public String getVersion() {
-        PackageInfo pInfo = new PackageInfo();
-        return pInfo.versionName;
-    }
-
-
     private void writeLogFile(final String message) {
         // open and write file in another Thread
         new Thread(new Runnable() {
@@ -85,10 +109,9 @@ public class PacLog {
             public void run() {
 
                 //prepare the log file
-                File file = new File(context.getFilesDir(), fileName);
-                if (!file.exists()) {
+                if (!logFile.exists()) {
                     try {
-                        file.createNewFile();
+                        logFile.createNewFile();
                         //  Log.i(TAG, "file created written");
                     } catch (IOException e) {
                         Log.e(TAG, "IOException: " + fileName + " cannot be created");
@@ -96,12 +119,20 @@ public class PacLog {
                     }
                 }
                 try {
-                    if (file.length() > LOG_SIZE) {
-                        file.delete();
-                        file.createNewFile();
+                    if (logFile.length() > LOG_SIZE) {
+
+                        File backupFile = setLogPath(storageOption, BCKUP_EXT);
+                        if (backupFile.exists())
+                            backupFile.delete();
+                        logFile.renameTo(backupFile);
+                        /// create main log file again
+                        logFile = setLogPath(storageOption, fileExtension);
+                        if (logFile.exists())
+                            logFile.delete();
+                        logFile.createNewFile();
                     }
                     //BufferedWriter for performance, true to set append to file flag
-                    BufferedWriter buf = new BufferedWriter(new FileWriter(file, true));
+                    BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
                     buf.append(message);
                     buf.newLine();
                     buf.close();
@@ -115,82 +146,74 @@ public class PacLog {
     }
 
 
-    public void exoportLog() {
+    public void exoportInternal() {
 
-        final File src = new File(context.getFilesDir(), fileName);
-        final File dst = new File(context.getExternalFilesDir(null), fileName);
 
-        if (src.exists()) {
+        if (storageOption == INTERNAL_STORAGE) {
 
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
+            final File src = logFile;
+            final File dst = setLogPath(SECONDARY_STORAGE, fileExtension);
 
-                    try {
-                        InputStream is = new FileInputStream(src);
-                        OutputStream os = new FileOutputStream(dst);
+            if (src.exists()) {
 
-                        byte[] buff = new byte[1024];
-                        int len;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
 
-                        while ((len = is.read(buff)) > 0) {
-                            os.write(buff, 0, len);
+                        try {
+                            InputStream is = new FileInputStream(src);
+                            OutputStream os = new FileOutputStream(dst);
+
+                            byte[] buff = new byte[1024];
+                            int len;
+
+                            while ((len = is.read(buff)) > 0) {
+                                os.write(buff, 0, len);
+                            }
+                            is.close();
+                            os.close();
+                            if (isListener)
+                                pacLogListener.onExport(true);
+                            isExported = true;
+                            Log.i(TAG, "Log exported: " + dst.getAbsolutePath());
+                        } catch (IOException ex) {
+                            if (isListener)
+                                pacLogListener.onExport(false);
+                            isExported = false;
+                            Log.d(TAG, "IOException during file export");
+                            ex.printStackTrace();
                         }
-                        is.close();
-                        os.close();
-                        if (isListener)
-                            pacLogListener.onExport(true);
-                        isExported = true;
-                        Log.i(TAG, "Log exported: " + dst.getAbsolutePath());
-                    } catch (IOException ex) {
-                        if (isListener)
-                            pacLogListener.onExport(false);
-                        isExported = false;
-                        Log.d(TAG, "IOException during file export");
-                        ex.printStackTrace();
                     }
-                }
-            }).start();
+                }).start();
 
-        } else {
-            if (isListener)
-                pacLogListener.onExport(false);
-            isExported = false;
-            Log.d(TAG, "File does not exist!");
+            } else {
+                if (isListener)
+                    pacLogListener.onExport(false);
+                isExported = false;
+                Log.d(TAG, "File does not exist!");
+            }
         }
     }
 
 
-    public void deleteALl() {
+    public void wipeLogs() {
 
-        File src = new File(context.getFilesDir(), fileName);
-        File dst = new File(context.getExternalFilesDir(null), fileName);
+        File src = logFile;
+        File dst = setLogPath(SECONDARY_STORAGE, fileExtension);
+        File bck = setLogPath(storageOption,BCKUP_EXT);
 
         if (src.exists())
             src.delete();
         if (dst.exists())
             dst.delete();
+        if (bck.exists())
+            bck.delete();
     }
 
 
-    public void deleteExported() {
+    public void deleteLog() {
 
-        File exported = new File(context.getExternalFilesDir(null), fileName);
-
-        if (exported.exists())
-            exported.delete();
     }
-
-    public void deleteInternal() {
-
-        File internal = new File(context.getFilesDir(), fileName);
-
-        if (internal.exists())
-            internal.delete();
-    }
-
-
-
 
     public String getFileName() {
         return fileName;
@@ -198,6 +221,18 @@ public class PacLog {
 
     public long getFileSize() {
         return fileSize;
+    }
+
+    public String getFileExtension() {
+        return fileExtension;
+    }
+
+    public String getAbsoluthPath() {
+        return absoluthPath;
+    }
+
+    public int getStorageOption() {
+        return storageOption;
     }
 
     public PacLog setFileName(String fileName) {
@@ -210,6 +245,23 @@ public class PacLog {
         return this;
     }
 
+    public PacLog setFileExtension(String fileExtension) {
+        this.fileExtension = fileExtension;
+        return this;
+    }
+
+    public PacLog setAbsoluthPath(String absoluthPath) {
+        this.absoluthPath = absoluthPath;
+        return this;
+    }
+
+    public PacLog setStorageOption(int storageOption) {
+        this.storageOption = storageOption;
+        this.logFile = setLogPath(storageOption, fileExtension);
+        return this;
+    }
+
+
     public boolean isExported() {
         return isExported;
     }
@@ -219,6 +271,10 @@ public class PacLog {
         return lastMessage;
     }
 
-//TODO add option to chose location internal/external/custom path
-//TODO add option to create specific amount of files and create logic for writing these files
+
+    public int getVersion() {
+        PackageInfo pInfo = new PackageInfo();
+        return pInfo.versionCode;
+    }
+
 }
