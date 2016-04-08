@@ -6,7 +6,7 @@ Everything has been designed to simplify the work so you need only few lines of 
 
 
 
-#Setup Gradle dependency in your app module like this:
+#Setup Gradle dependency in your app module:
 
 	dependencies {
 
