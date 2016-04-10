@@ -33,82 +33,82 @@ In your Activity create a PacLog object and initialise it either with context on
 #List of available methods:
 
     void exoportInternal()
-- Exports the log if log file from internal memory to external storage.
+Exports the log if log file from internal memory to external storage.
 
 
     String getAbsoluthPath()
 
-- Returns absoluth path to log file 
+Returns absoluth path to log file 
 
 
     String getFileExtension()
 
-- Return file extension
+Return file extension
 
 
     String getFileName() 
 
-- Returns file name
+Returns file name
 
 
     long getFileSize()
 
-- Returns file size
+Returns file size
 
 
     int getStorageOption()
 
-- Returns storage option
+Returns storage option
 
 
     int getVersion()
 
-- Returns lib version
+Returns lib version
 
 
     PacLog setFileName(String fileName) 
 
-- Set file name
+Set file name
 
 
     PacLog setFileSize(long fileSize) 
 
-- Set file size in bytes
+Set file size in bytes
 
 
     PacLog setFileExtension(String fileExtension)
 
-- Set log file extension (default: "txt")
+Set log file extension (default: "txt")
 
 
     PacLog setAbsoluthPath(String absoluthPath)
 
-- Set storage path (i.e. "/storage/sdcar0/logs/")
+Set storage path (i.e. "/storage/sdcar0/logs/")
 
 
     PacLog setStorageOption(int storageOption)
 
-- Set storage to internal/external or custom path. If custom path is set, then it is necessary to 
+Set storage to internal/external or custom path. If custom path is set, then it is necessary to 
 
 
     setAbsoluthPath(String path)
 
-- Possible values INTERNAL_STORAGE, SECONDARY_STORAGE (default), CUSTOM_STORAGE
+Possible values INTERNAL_STORAGE, SECONDARY_STORAGE (default), CUSTOM_STORAGE
 
 
     String toString()
 
-- Returns last message which was stored in log file
+Returns last message which was stored in log file
 
 
     void wipeLogs()
 
-- Deletes all stored logs including backup file
+Deletes all stored logs including backup file
 
 
     void writePacLog(String message) 
 
-- Method writes the message in the specified log file in format Month/Year Hours:Minutes:Seconds.Miliseconds Message.
+Method writes the message in the specified log file in format Month/Year Hours:Minutes:Seconds.Miliseconds Message.
 
 
 #PacLog Listener:
