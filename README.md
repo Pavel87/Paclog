@@ -27,39 +27,62 @@ In your Activity create a PacLog object and initialise it either with context on
   
     writePacLog(String message) 
 
+- Method writes the message in the specified log file in format Month/Year Hours:Minutes:Seconds.Miliseconds Message.
+
 
 #List of available methods:
 
     void exoportInternal()
+- Exports the log if log file from internal memory to external storage.
 
     String getAbsoluthPath()
+- Returns absoluth path to log file 
 
     String getFileExtension()
+- Return file extension
 
     String getFileName() 
+- Returns file name
 
     long getFileSize()
+- Returns file size
 
     int getStorageOption()
+- Returns storage option
 
     int getVersion()
-
-    boolean isExported()
+- Returns lib version
 
     PacLog setFileName(String fileName) 
+- Set file name
 
     PacLog setFileSize(long fileSize) 
+- Set file size in bytes
 
     PacLog setFileExtension(String fileExtension)
+- Set log file extension (default: "txt")
 
     PacLog setAbsoluthPath(String absoluthPath)
+- Set storage path (i.e. "/storage/sdcar0/logs/")
 
     PacLog setStorageOption(int storageOption)
+- Set storage to internal/external or custom path. If custom path is set, then it is necessary to 
+
+    setAbsoluthPath(String path)
+- Possible values INTERNAL_STORAGE, SECONDARY_STORAGE (default), CUSTOM_STORAGE
 
     String toString()
+- Returns last message which was stored in log file
 
     void wipeLogs()
+- Deletes all stored logs including backup file
 
     void writePacLog(String message) 
+- Method writes the message in the specified log file in format Month/Year Hours:Minutes:Seconds.Miliseconds Message.
+
+
+#PacLog Listener:
+PaclogListener can be used within user mode in case you want to retrieve notification when log file is exported f
+    void onExport(boolean isExported);
 
      
